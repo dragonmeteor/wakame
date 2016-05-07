@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<test type="ttest">
+	<string name="references" value="0.0898394"/>
+
+	<scene>
+		<integrator type="direct_ems"/>
+
+		<camera type="perspective">
+		        <transform name="toWorld">
+			        <lookat origin="0, 0.01, 0"
+					target="0, 0, 0"
+					up="0, 0, 1"/>
+			</transform>
+			<float name="fov" value="1e-6"/>
+			<integer name="width" value="1"/>
+			<integer name="height" value="1"/>
+		</camera>
+
+		<mesh type="obj">
+			<string name="filename" value="floor.obj"/>
+			<bsdf type="diffuse">
+				<color name="albedo" value="0.5, 0.5, 0.5"/>
+			</bsdf>
+		</mesh>
+
+		<mesh type="obj">
+			<string name="filename" value="polylum1.obj"/>
+			<bsdf type="diffuse">
+				<color name="albedo" value="0, 0, 0"/>
+			</bsdf>
+			<emitter type="area">
+				<color name="radiance" value="1, 1, 1"/>
+			</emitter>
+		</mesh>
+	</scene>
+</test>

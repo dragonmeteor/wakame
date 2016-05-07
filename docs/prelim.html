@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Wakame: Preliminaries</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->    
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/cs6640.css" rel="stylesheet">
+    <link href="js/google-code-prettify/prettify.css" type="text/css" rel="stylesheet" />    
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body data-spy="scroll" data-target="#navbar" body onload="prettyPrint()">
+
+    <nav id="navbar" class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Preliminaries</a>
+        </div>
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">            
+            <li class="active"><a href="#p1">Part 1</a></li>
+            <li><a href="#p2">Part 2</a></li>
+            <li><a href="#p3">Part 3</a></li>
+            <li><a href="#p4">Part 4</a></li>
+            <li><a href="#p5">Part 5</a></li>
+          </ul>          
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container" id="main">
+
+      <h1 id="head1">Preliminaries</h1>
+      <p class="courseinfo">Downloading, Compiling, and Running Wakame</p>
+      
+      <a href="#" id="p1"></a>
+      <h2 >Part 1: Cloning using the command line</h2>
+
+      <p>The source code of Wakame is available on <a href="https://github.com/dragonmeteor/wakame">Github</a>.  To check out a copy of the source code, enter
+      <pre class="prettyprint lang-bash">$ git clone https://bitbucket.org/dragonmeteor/wakame</pre>
+      on the terminal. We'll likely publish extensions and bug-fixes to this repository as the semester progresses. To get them, navigate into the <tt>wakame</tt> directory and run the command            
+      <pre class="prettyprint lang-bash">$ git pull</pre>
+      If there were any concurrent modifications to the same file, git may ask you to resolve merge conflicts. We refer you to the learning resources for information about resolving conflicts in general.
+      </p>
+
+      <a href="#" id="p2"></a>
+      <h2>Part 2: Setting up a development environment</h2>
+
+      <p>Wakame is written using Java version 8 and uses some of its newest features such as lambda expressions, and the new parallel processing library.  As a result, to compile and run Wakame, JDK 8 is needed, and it can be downloaded from <a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html">this web site</a>.  Please download and install the JDK and make sure that you can run the <tt>java</tt> and <tt>javac</tt> command from the command line.</p>
+
+      <p>The <tt>wakame</tt> root directory has been set up as a project for two Java IDEs: <a href="http://www.eclipse.org/">Eclipse</a> and <a href="https://www.jetbrains.com/idea/">IntelliJ IDEA</a>.  Please open the project with the IDE that you prefer and try to compile the project.</p>
+
+      <p>We will be rendering images info PFM files.  The Wakame main class (to be discussed later) can open and display them, but it might be more convenient to use an external viewer that is integrated with the shell.  For this, we recommend the <a href="https://bitbucket.org/edgarv/hdritools/downloads">PCG HDRITools</a> by <a href="http://www.cs.cornell.edu/~eva5/">Edgar Velázquez-Armendáriz</a>.</p>
+
+      <a href="#" id="p3"></a>
+      <h2>Part 3: A high-level overview</h2>
+
+      <p>The Wakame repository consists of a number of directories, which are explained in the table below.</p>
+
+      <table class="table table-condensed">
+        <thead> <tr> <th>Directory</th> <th>Description</th> </tr> </thead>
+        <tbody>
+          <tr>
+            <td><tt>src</tt></td>
+            <td>Contains the Java source code.</td>
+          </tr>
+          <tr>
+            <td><tt>lib</tt></td>
+            <td>Contains libraries in the form of JAR files that Wakame depends on</td>
+          </tr>
+          <tr>
+            <td><tt>data</tt></td>
+            <td>Contains example scenes and test datasets to validate your implementation</td>
+          </tr>
+          <tr>
+            <td><tt>docs</tt></td>
+            <td>Contains documentations in the form of web pages, including this very web page.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>vecmath</h3>
+
+      <p>Wakame depends on a number of external libraries.  All of them has already been included in the <tt>lib</tt> directory.  Most of the time, you will be dealing with the <a href="http://docs.oracle.com/cd/E17802_01/j2se/javase/technologies/desktop/java3d/forDevelopers/j3dapi/javax/vecmath/package-summary.html">vecmath</a> library, which is responsible for basic linear algebra types, such as vectors, points, and linear transformations.  You should already be familiar with this library if you have taken some Cornell's introductory graphics courses such as <a href="http://www.cs.cornell.edu/Courses/cs4620/2014fa">CS 4620</a> and <a href="http://www.cs.cornell.edu/Courses/cs5625/2015sp">CS 5625</a>.  Otherwise, please take some time to look at the Javadoc of the class <a href="http://docs.oracle.com/cd/E17802_01/j2se/javase/technologies/desktop/java3d/forDevelopers/j3dapi/javax/vecmath/Tuple3d.html"><tt>Tuple3d</tt></a>, <a href="http://docs.oracle.com/cd/E17802_01/j2se/javase/technologies/desktop/java3d/forDevelopers/j3dapi/javax/vecmath/Point3d.html"><tt>Point3d</tt></a>, <a href="http://docs.oracle.com/cd/E17802_01/j2se/javase/technologies/desktop/java3d/forDevelopers/j3dapi/javax/vecmath/Vector3d.html"><tt>Vector3d</tt></a>, and <a href="http://docs.oracle.com/cd/E17802_01/j2se/javase/technologies/desktop/java3d/forDevelopers/j3dapi/javax/vecmath/Matrix4d.html"><tt>Matrix4d</tt></a>.  (<b>Important: You should know what the <tt>scaleAdd</tt> method does to the receiver and the arguments!</b>)</p>
+
+      <p>As you might have been able to tell from the last paragraph, Wakame uses double precisition floating point numbers (<tt>double</tt> in Java) to store most graphics related data.  As such, scalars are stored as <tt>double</tt>s, and double-precision linear algebra types such as <tt>Point3d</tt> and <tt>Vector3d</tt> are used instead of the single-precision varieties such as <tt>Point3f</tt> and <tt>Vector3f</tt>.</p>
+
+      <h3>Source code organization</h3>
+
+      <p>Take a moment to browse through the source files in the <tt>src</tt> directory, which is arranged through subdirectories into the following Java packages:</p>
+
+      <table class="table table-condensed">
+        <thead> 
+          <tr> 
+            <th>Package</th> 
+            <th>Description</th> 
+          </tr> 
+        </thead>
+        <tbody>
+          <tr>
+            <td><tt>wakame</tt></td>
+            <td>Contains the base object class <tt>WakameObject</tt> and other classes which are crutial to Wakame's operations but otherwise hard to categorized into subpackages.</td>
+          </tr>
+          <tr>
+            <td><tt>wakame.app</tt></td>
+            <td>Contains the main Wakame application.</td>
+          </tr>
+          <tr>
+            <td><tt>wakame.block</tt></td>
+            <td>Contains classes that implements image blocks, which are areas of the output image that are rendered in parallel.</td>
+          </tr>
+          <tr>
+            <td><tt>wakame.bsdf</tt></td>
+            <td>Contains classes that implement BSDF models.</td>
+          </tr>
+          <tr>
+            <td><tt>wakame.camera</tt></td>
+            <td>Contains classes that implement camera models.</td>
+          </tr>
+          <tr>
+            <td><tt>wakame.emitter</tt></td>
+            <td>Contains classes that implement light sources.</td>
+          </tr>
+          <tr>
+            <td><tt>wakame.integrator</tt></td>
+            <td>Contains classes that implement rendering techniques.</td>
+          </tr>
+          <tr>
+            <td><tt>wakame.mesh</tt></td>
+            <td>Contains classes that implement triangle meshes, which are used to represent all surfaces in Wakame.</td>
+          </tr>
+          <tr>
+            <td><tt>wakame.rfilter</tt></td>
+            <td>Contains classes that implement image reconstruction filters.</td>
+          </tr>
+          <tr>
+            <td><tt>wakame.sampler</tt></td>
+            <td>Contains classes that implement randon number generators.</td>
+          </tr>
+          <tr>
+            <td><tt>wakame.struct</tt></td>
+            <td>Contains classes that implement basic ray-tracing-related data structures such as rays, coordinate frames, colors, and axis-aligned bounding boxes.</td>
+          </tr>
+          <tr>
+            <td><tt>wakame.util</tt></td>
+            <td>Contains classes that implement ray-tracing-related utility functions.</td>
+          </tr>
+          <tr>
+            <td><tt>wakame.accel</tt></td>
+            <td>Contains classes that implement ray tracing acceleration structures.</td>
+          </tr>
+          <tr>
+            <td><tt>yondoko</tt></td>
+            <td>Contains utility classes that are not directly related to ray tracing.</td>
+          </tr>
+          <tr>
+            <td><tt>yumyai</tt></td>
+            <td>An OpenGL library classes that uses JOGL to interface with OpenGL.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>You will find that most classes have documentation markup in place.  The most important class in Wakame is called <tt>WakameObject</tt>.  It is the base class of everything that can be constructed using the XML scene description language. Other interfaces (e.g. <tt>Camera</tt>) derive from this class and expose additional more specific functionality (e.g. to generate an outgoing ray from a camera).</p>
+
+      <h3>Hypothesis test support</h3>
+
+      <p>With each programming assignment, we will provide statistical hypothesis tests that you can use to verify that your algorithms are implemented correctly. You can think of them as unit tests with a little extra twist: suppose that the correct result of a certain computation in a is given by a constant \(c\). A normal unit test would check that the actual computed \(c'\) satisfies \(|c-c'|<\varepsilon\) for some small constant \(\varepsilon\) to allow for rounding errors etc. However, rendering algorithms usually employ randomness (they are Monte Carlo algorithms), and in practice the computed answer \(c'\) can be quite different from \(c\), which makes it tricky to choose a suitable constant \(\varepsilon\).</p>
+
+      <p>A statistical hypothesis test, on the other hand, analyzes the computed value and an estimate of its variance and tries to assess how likely it is that the difference \(|c-c'|\) is due to random noise or an actual implementation bug. When it is extremely unlikely (usually \(p<0.001\)) that the error could be attributed to noise, the test reports a failure.</p>      
+
+      <a href="#" id="p4"></a>
+      <h2>Part 4: Scene file format and parsing</h2>
+
+      <p>Wakame uses a very simple XML-based scene description language, which can be interpreted as a kind of building plan: the parser creates the scene step by step as it reads the scene file from top to bottom. The XML tags in this document are interpreted as requests to construct certain Java objects including information on how to put them together.</p>
+
+      <p>Each XML tag is either an <em>object</em> or a <em>property</em>. Objects correspond to Java instances. Properties are small bits of information that are passed to an object at the time of its instantiation. For instance, the following snippet creates red diffuse BSDF:</p>
+
+      <pre class="prettyprint linenums lang-xml">
+&lt;bsdf type="diffuse"&gt;
+    &lt;color name="albedo" value="0.5, 0, 0"/>
+&lt;/bsdf&gt;</pre>
+
+      <p>Here, the <tt>&lt;bsdf&gt;</tt> tag will cause the creation of an object of type <tt>Bsdf</tt>, and the
+      <tt>type</tt> attribute specifies what specific subclass of <tt>Bsdf</tt> should be used.  The <tt>&lt;color&gt;</tt> tag creates a property of name <tt>albedo</tt> that will be passed to its constructor.  If you open up the Java source file <tt>src/wakame/bsdf/Diffuse.java</tt>, you will see that there is a method called <tt>setProperties</tt>, which looks for <span rel="tooltip" title="Or alternatively substitutes 50% grey when no value is provided.">this specific property</span>:
+      </p>
+
+      <pre class="prettyprint linenums lang-java">
+public class Diffuse implements Bsdf {
+    // Irrelevant code elided
+
+    @Override
+    protected void setProperties(HashMap&lt;String, Object&gt; properties) {
+        albedo.set(PropertiesUtil.getColor(properties, "albedo", new Color3d(0.5, 0.5, 0.5)));
+    }
+}</pre>
+
+      <p>The piece of code that associates the <tt>"diffuse"</tt> XML identifier with the <tt>Diffuse</tt> class in the Java code can be found in the static initializer of the <tt>wakame.WakameObject</tt> class:</p>
+
+      <pre class="prettyprint linenums lang-java">
+public abstract class WakameObject {
+    // Irrelevant code elided.    
+
+    static {
+        // Irrelevant code elided.            
+
+        // BSDF
+        WakameObject.registerBuilder("diffuse", Diffuse.Builder.class);
+    }
+}</pre>
+
+      <p>You might be wondering why we register the "builder" <tt>Diffuse.Builder</tt> class instead of the <tt>Diffuse</tt> class itself.  We will talk more about this in details in the next section.</p>
+
+      <p>Certain objects can be nested hierarchically. For example, the following XML snippet creates a mesh that loads its contents from an external OBJ file and assigns a red diffuse BRDF to it.</p>
+
+      <pre class="prettyprint linenums lang-xml">
+&lt;mesh type="obj"&gt;
+    &lt;string type="filename" value="bunny.obj"/&gt;
+
+    &lt;bsdf type="diffuse"&gt;
+        &lt;color name="albedo" value="0.5, 0, 0"/&gt;
+    &lt;/bsdf&gt;
+&lt;/mesh&gt;</pre>
+
+      <p>Implementation-wise, this kind of nesting will cause a method named <tt>addChild()</tt> to be invoked within the parent object. In this specific example, this means that <tt>Mesh.addChild()</tt> is called, which roughly looks as follows:</p>
+
+      <pre class="prettyprint linenums lang-java">
+public class Mesh extends WakameObject {
+    // Irrelevant coded elided.
+
+    public void addChild(WakameObject obj) {
+        if (obj instanceof Bsdf) {
+            if (bsdf != null) {
+                throw new RuntimeException("Mesh.addChild(): Tried to register multiple Bsdf instances.");
+            }
+            bsdf = (Bsdf)obj;
+        }
+        // ..(omitted)..
+    }
+}</pre>
+
+      <p>This function verifies that the nested object is a BSDF, and that no BSDF was specified before; otherwise, it throws an exception.</p>
+
+      <p>The following different types of properties can currently be passed to objects within the XML description language:</p>
+
+    <div class="row">
+      <div class="col-md-6">
+        <pre class="prettyprint linenums">
+&lt;!-- Basic parameter types --&gt;
+&lt;string name="property name" value="arbitrary string"/&gt;
+&lt;boolean name="property name" value="true/false"/&gt;
+&lt;float name="property name" value="float value"/&gt;
+&lt;integer name="property name" value="integer value"/&gt;
+&lt;vector name="property name" value="x, y, z"/&gt;
+&lt;point name="property name" value="x, y, z"/&gt;
+&lt;color name="property name" value="r, g, b"/&gt;</pre>
+      </div>
+      <div class="col-md-6">
+        <pre class="prettyprint linenums">
+&lt;!-- Linear transformations use a different syntax --&gt;
+&lt;transform name="property name"&gt;
+    &lt;!-- Any sequence of the following operations: --&gt;
+    &lt;translate value="x, y, z"/&gt;
+    &lt;scale value="x, y, z"/&gt;
+    &lt;rotate axis="x, y, z" angle="deg."/&gt;
+    &lt;!-- Useful for cameras and spot lights: --&gt;
+    &lt;lookat origin="x,y,z" target="x,y,z" up="x,y,z"/&gt;
+&lt;/transform&gt;</pre>
+      </div>
+    </div>
+
+      <p>The top-level element of any scene file is usually a <tt>&lt;scene&gt;</tt> tag, but this is not always the
+        case.  For instance, some of the programming assignments will ask you to run statistical tests on BRDF models or rendering algorithms, and these tests are also specified using the XML scene description language, like so:
+      </p>
+
+      <pre class="prettyprint linenums lang-xml">
+&lt;?xml version="1.0"?&gt;
+
+&lt;test type="chi2test"&gt;
+    &lt;!-- Run a χ<sup>2</sup> test on the microfacet BRDF model (@ 0.01 significance level) --&gt;
+    &lt;float name="significanceLevel" value="0.01"/&gt;
+
+    &lt;bsdf type="microfacet"&gt;
+        &lt;float name="alpha" value="0.1"/&gt;
+    &lt;/bsdf&gt;
+&lt;/test&gt;</pre>
+
+      <a href="#" id="p5"></a>
+      <h2>Part 5: Creating your first Wakame class</h2>
+
+      <p>In Wakame, rendering algorithms are referred to as <em>integrators</em> because they generally solve a numerical integration problem. The remainder of this section explains how to create your first (dummy) integrator which visualizes the surface normals of objects.</p>
+
+      <p> We begin by creating a new <tt>WakameObject</tt> subclass <tt>wakame.integrator.NormalIntegrator</tt> with the following content: </p>
+
+      <pre class="prettyprint linenums lang-java">
+package wakame.integrator;
+
+import wakame.Scene;
+import wakame.WakameObject;
+import wakame.sampler.Sampler;
+import wakame.struct.Color3d;
+import wakame.struct.Ray;
+import wakame.util.PropertiesUtil;
+
+import java.util.HashMap;
+
+public class NormalIntegrator extends Integrator {
+    private String myProperty;
+
+    private NormalIntegrator() {
+        // NO-OP
+    }
+
+    @Override
+    public void Li(Scene scene, Sampler sampler, Ray ray, Color3d output) {
+        output.set(0, 1, 0);
+    }
+
+    @Override
+    protected void activate() {
+        // NO-OP
+    }
+
+    @Override
+    protected void setProperties(HashMap&lt;String, Object&gt; properties) {
+        myProperty = PropertiesUtil.getString(properties, "myProperty", "nothing");
+        System.out.println("Parameter value was : " + myProperty);
+    }
+
+    public String toString() {
+        return String.format("NormalIntegrato[\n"
+                + "  myProperty = \"%s\""
+                + "]", myProperty);
+    }
+
+    public static class Builder extends WakameObject.Builder {
+        @Override
+        protected WakameObject createInstance() {
+            return new NormalIntegrator();
+        }
+    }
+}</pre>
+
+      <p>Looking at the code snippet above, you can notice that an instance of <tt>NormalIntegrator</tt> cannot be created directly by the <tt>new</tt> keyword because the default constructor has been made private.  Instead, to create an instance, we must create an instance the "builder" class <tt>NormalIntegrator.Builder</tt> and then call the method <tt>build()</tt> on it to get an instance, like so:</p>
+
+      <pre class="prettyprint linenums lang-java">
+NormalIntegrator integrator = (NormalIntegrator)new NormalIntegrator.Builder().build();</pre>
+
+      <p>Alternatively, once the builder is created, it can be used to specified the integrator's property as follows:</p>
+
+      <pre class="prettyprint linenums lang-java">
+NormalIntegrator.Builder builder = new NormalIntegrator.Builder();
+builder.setProperty("myProperty", "hello");
+NormalIntegrator integrator = (NormalIntegrator)builder.build();</pre>
+
+      <p>This rather convoluted way of creating an object comes from the application of the <a href="https://en.wikipedia.org/wiki/Builder_pattern">builder pattern</a>, which provides a "builder" object that are used to specify parameters of the real object before its eventual construction.  The builder pattern is used when there is a lot of work to be done before one arrives an object with a consistent internal state.  This is especially true for any <tt>WakameObject</tt> because, before an object can be used, a number of steps has to be taken:
+        <ol>
+          <li>Properties of the object must be specified, for example, through XML tags.</li>
+          <li>Children must be added to the object, possibly through XML specification.</li>
+          <li>After all the properties and children are specified, the object must be initialized to take into account all the specified information.  (This is done through the <tt>activate()</tt> method, which all subclasses of <tt>WakameObject</tt> must implement.</li>
+        </ol>
+      The builder was created so that the user can set the properties and add children before the actual object is created.  By finally calling <tt>build()</tt>, the builder creates a blank instance (whose internal state is inconsistent), sets the properties, adds all children, and initializes the instance for returning it.  The returned object has consistent internal state and can be used without fear of errors.
+      </p>      
+
+      <p>An alternative to the builder pattern would be to allow the user to create a blank instance of the object by himself and entrust him with the responsibility of initializing it afterwards.  However, yours truly tried this approach and found that it was very easy to forget to call <tt>activate()</tt> after object creation.  The approach gave rise to three bugs, so your truly think the builder patttern would be better because it always gives objects that are internally consistent.</p>
+      
+      <p>We have learned about Wakame's object creation convention.  Next, to use the above integrator, we must be able to specify it in an XML scene file and have the system create an instance from such a file.  To this end, we pick the name <tt>"normal"</tt> for this integrator.  To let the system knows that the name <tt>"normal"</tt> with this particular class, we register the "builder" of the class in the static initializer of the <tt>WakameObject</tt> class by adding the following new lines at the end.</p>
+
+      <pre class="prettyprint linenums lang-java">
+public class WakameObject {
+    // Irrelevant code elided.
+
+    static {
+        // Irrelevant code elided.
+        
+        // Mesh                                                                    // Old line
+        WakameObject.registerBuilder("obj", WavefrontOBJ.Builder.class);           // Old line
+
+        // BSDF                                                                    // Old line
+        WakameObject.registerBuilder("diffuse", Diffuse.Builder.class);            // Old line
+
+        // Integrators                                                             // New line
+        WakameObject.registerBuilder("normals", NormalIntegrator.Builder.class);   // New line
+    }
+}</pre>
+
+      <p>Notice that we register the "builder" inner-class of the <tt>NormalIntegrator</tt> class instead of the class itself.  To test the integrator, we create a test scene with the following content and save ti as <tt>test.xml</tt>:</p>
+
+      <pre class="prettyprint linenums lang-xml">
+&lt;?xml version="1.0"?&gt;
+
+&lt;scene&gt;
+    &lt;integrator type="normals"&gt;
+        &lt;string name="myProperty" value="Hello!"/&gt;
+    &lt;/integrator&gt;
+
+    &lt;camera type="perspective"/&gt;
+&lt;/scene&gt;</pre>
+
+      <p>This file instantiates our integrator and creates the default camera setup. Running <tt>wakame.app.Main</tt> with <tt>test.xml</tt> as its argument causes two things to happen.</p>
+
+      <p>First, some text output should be visible on the console:</p>
+
+      <pre class="prettyprint lang-bash">
+Parameter value was : Hello!
+
+
+Configuration: Scene[
+  integrator = NormalIntegrato[
+    myProperty = "Hello!"],
+  sampler = Independent[sampleCount=1]
+  camera = PerspectiveCamera[
+    cameraToWorld = 
+      1.0, 0.0, 0.0, 0.0
+      0.0, 1.0, 0.0, 0.0
+      0.0, 0.0, 1.0, 0.0
+      0.0, 0.0, 0.0, 1.0
+    outputSize = 1280 x 720
+    fovX = 30.000000
+    clip = [0.000100, 10000.000000]
+    rfilter = GaussianFilter[radius=2.000000, stddev=0.500000]
+  ],
+  meshes = {
+  }
+]
+
+
+17:01:46.230 [main] INFO  wakame.app.Main - Rendered 1 blocks out of 920 blocks (0.11%)
+17:01:46.232 [main] INFO  wakame.app.Main - Rendered 2 blocks out of 920 blocks (0.22%)
+17:01:46.232 [main] INFO  wakame.app.Main - Rendered 3 blocks out of 920 blocks (0.33%)
+    :
+    :
+    :
+17:01:46.322 [main] INFO  wakame.app.Main - Rendered 920 blocks out of 920 blocks (100.00%)
+17:01:46.323 [main] INFO  wakame.app.Main - Rendering took 0 min(s) 0 second(s) 967 ms
+17:01:46.353 [main] INFO  wakame.app.Main - Writing a 1280x720 PFM file to "temp.pfm"
+</pre>
+
+      <p>The Wakame executable echoed the property value we provided, and it printed a brief human-readable summary of the scene. The rendered scene is saved as an PFM file named test.pfm.</p>
+
+      <p>Secondly, a window pops up showing the image we just rendered!</p>
+
+      <div class="thumbnail">
+        <a href="images/green.png"><img width="800" src="images/green.png"/></a>
+      </div>
+
+      <p>The sliders at the bottom can be used to change the zoom level of the image and the exposure value of the image.</p>
+
+      <h2 id="p6">Part 6: The real normal integrator</h2>
+
+      <p>The <tt>NormalIntegrator</tt> we worked on in the last section just produces green, uninteresting images.  Let us now modify it to make its fulfill its intended purpose, which is to display the normal vector at the first point the eye ray hits a geometry.  Change the <tt>NormalIntegrator</tt> class as follows:</p>
+
+      <pre class="prettyprint linenums lang-java">
+package wakame.integrator;
+
+import wakame.Scene;
+import wakame.WakameObject;
+import wakame.sampler.Sampler;
+import wakame.struct.Color3d;
+import wakame.struct.Intersection;
+import wakame.struct.Ray;
+
+import java.util.HashMap;
+
+public class NormalIntegrator extends Integrator {
+    private NormalIntegrator() {
+        // NO-OP
+    }
+
+    @Override
+    public void Li(Scene scene, Sampler sampler, Ray ray, Color3d output) {
+        Intersection its = new Intersection();
+        if (!scene.rayIntersect(ray, its)) {
+            output.set(0,0,0);
+        } else {
+            output.set(Math.abs(its.shFrame.n.x),
+                    Math.abs(its.shFrame.n.y),
+                    Math.abs(its.shFrame.n.z));
+        }
+    }
+
+    @Override
+    protected void activate() {
+        // NO-OP
+    }
+
+    @Override
+    protected void setProperties(HashMap&lt;String, Object&gt; properties) {
+        /* No parameters this time */
+    }
+
+    public String toString() {
+        return "NormalIntegrator[]";
+    }
+
+    public static class Builder extends WakameObject.Builder {
+        @Override
+        protected WakameObject createInstance() {
+            return new NormalIntegrator();
+        }
+    }
+}
+</pre>
+
+      <p>Invoke <tt>wakame.app.Main</tt> on <tt>data/p1/ajax-normals.xml</tt>, and you should get the image below</p>
+
+      <div class="thumbnail">
+        <a href="images/normals.png"><img width="800" src="images/normals.png"/></a>
+      </div>
+    </div> <!-- /container -->
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+      });
+    </script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+    <script type="text/javascript" src="js/google-code-prettify/prettify.js"></script>
+  </body>
+</html>

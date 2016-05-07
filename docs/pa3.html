@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Wakame: Programming Assignment 2</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->    
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/cs6640.css" rel="stylesheet">
+    <link href="js/google-code-prettify/prettify.css" type="text/css" rel="stylesheet" />    
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body data-spy="scroll" data-target="#navbar" body onload="prettyPrint()">
+
+    <nav id="navbar" class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">PA3</a>
+        </div>
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">            
+            <li class="active"><a href="#intro">Introduction</a></li>
+            <li><a href="#p1">Part 1</a></li>
+            <li><a href="#p2">Part 2</a></li>
+            <li><a href="#p3">Part 3</a></li>
+            <li><a href="#p4">Part 4</a></li>
+          </ul>          
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container" id="main">
+
+      <h1 id="head1">Programming Assignment 3 <span class="subtitle">Participating Media</span></h1>
+
+      <a href="#" id="intro"></a>
+      <h2>Introduction</h2>
+
+      <p> At this point, you have a Monte Carlo path tracer at your command that is capable of producing realistic images of scenes designed using surfaces. In this assignment, you'll add support for homogeneous and heterogeneous participating media as discussed in class. This will extend the renderer's range to scenes including hazy atmospheres, subsurface scattering, plumes of steam or smoke, and other kinds of volumetric data (e.g. CT scans).</p>
+
+      <p>Please download the volumetric data that are used in the scenes in this assignment from <a href="http://www.cs.cornell.edu/Courses/cs6630/2012sp/nori/volume-data.zip">this link</a>.  Due to their sizes, they are not included in the source code repository.  Extract the two volume files into the <tt>data/pa3</tt> directory.</p>
+
+      <a href="#" id="p1"></a>
+      <h2>Part 1: Environment Map</h2>
+
+      <p>Implement the <code>EnvironmentMap</code> class which represents distant light source whose radiance distribution is determined by an image.  As discussed earlier, there can be at most one environment in the scene and it cannot coexist with a distant disk source.  An environment map is fully specified by (1) an image of the spherical radiance distribution given in Mercator projection, (2) a scale factor, and (3) a <tt>toWorld</tt> transformation, which is used in the same way as in the distant disk light.</p>
+
+      <p>The following is how an environment map is specified in Wakame's description language:</p>
+
+      <pre class="prettyprint linenums lang-xml">&lt;scene&gt;
+    &lt;!-- Load a radiance-valued latitude/longitude bitmap from "grace.pfm" --&gt;
+    &lt;emitter type="envmap"&gt;
+        &lt;string name="filename" value="grace.pfm"/&gt;
+        
+        &lt;!-- Scale the radiance values by a factor of 2 --&gt;
+        &lt;float name="scale" value="2"/&gt;
+ 
+        &lt;!-- Rotate the environment map 30 degrees counter-clockwise around the Y-axis --&gt;
+        &lt;transform name="toWorld"&gt;
+            &lt;rotate axis="0,1,0" value="30"/&gt;
+        &lt;/transform&gt;
+    &lt;/emitter&gt; 
+    &lt;!-- ..... --&gt;
+&lt;/scene&gt;</pre>
+
+      <p>You can assume that the picture file will always be a PFM image.  Wakame comes with an implementation of PFM image, located in the <code>yondoko.image.Pfm</code> class.</p>
+
+      <h4>Radiance Evaluation</h4>
+
+      <p>Let $\omega_i$ be a direction in world coordinate extending from point $x$.  If the ray from $x$ in direction $\omega_i$ does not hit any scene object, then the radiance given by the environment map is given as follows:
+        <ol>
+          <li>Transform $\omega_i$ into the local coordinates of the light source.  Let us call the result $\omega_e$.</li>
+          <li>Rewrite $\omega_e$ in spherical coordinate $(\theta_e, \phi_e)$ where:
+            $$ \omega_e = \begin{bmatrix}  \sin \theta_e \cos \phi_e \\ \sin \theta_e \sin \phi_e \\ \cos \theta_e \end{bmatrix}.$$
+          </li>
+          <li>Perform the Mercator projection:
+            \begin{align*}
+            x &= \frac{\phi_e}{2\pi} \times (\mathrm{image\ width}) \\
+            y &= \mathrm{image\ height} - \frac{\theta_e}{\pi} \times (\mathrm{image\ height})
+            \end{align*}            
+          </li>
+          <li>Fetch the pixel intensity of the image at $(x,y)$ and multiply by the scaling factor to get the radiance: $$ \mathrm{radiance} = (\mathrm{scaling\ factor}) \times \mathrm{image}[x,y] $$</li>
+        </ol>
+      </p>
+
+      <h4>Sampling and Density</h4>
+
+      <p>Implement a method for generating a world space direction in such a way that the probability that a pixel in the image is sampled is proportional to the luminance of the pixel intensity times the solid angle that the pixel subtends.  Again, this method should be acommpanied by another method which returns the probability of sampling a given world space direction.</p>
+
+      <h4>Testing</h4>
+
+      <p>Render the scenes in the <tt>data/pa3/envmaps</tt> directory and see if you get the right results.</p>
+      
+      <table class="table table-bordered">
+        <tr>
+          <td></td>
+          <td align="center"><tt>envmap_0_ems.xml</tt></td>
+          <td align="center"><tt>envmap_1_ems.xml</tt></td>
+          <td align="center"><tt>envmap_2_ems.xml</tt></td>
+          <td align="center"><tt>envmap_3_ems.xml</tt></td>
+          <td align="center"><tt>envmap_4_ems.xml</tt></td>
+        </tr>
+        <tr>
+          <td align="center">Environment Map</td>
+          <td align="center"><a href="images/pa3/envmap_0.png"><img width="150" src="images/pa3/envmap_0.png"></a></td>
+          <td align="center"><a href="images/pa3/envmap_1.png"><img width="150" src="images/pa3/envmap_1.png"></a></td>
+          <td align="center"><a href="images/pa3/envmap_2.png"><img width="150" src="images/pa3/envmap_2.png"></a></td>
+          <td align="center"><a href="images/pa3/envmap_3.png"><img width="150" src="images/pa3/envmap_3.png"></a></td>
+          <td align="center"><a href="images/pa3/envmap_4.png"><img width="150" src="images/pa3/envmap_4.png"></a></td>
+        </tr>
+        <tr>
+          <td align="center">Reference</td>
+          <td align="center"><a href="images/pa3/envmap_0_ems.png"><img width="150" src="images/pa3/envmap_0_ems.png"></a></td>
+          <td align="center"><a href="images/pa3/envmap_1_ems.png"><img width="150" src="images/pa3/envmap_1_ems.png"></a></td>
+          <td align="center"><a href="images/pa3/envmap_2_ems.png"><img width="150" src="images/pa3/envmap_2_ems.png"></a></td>
+          <td align="center"><a href="images/pa3/envmap_3_ems.png"><img width="150" src="images/pa3/envmap_3_ems.png"></a></td>
+          <td align="center"><a href="images/pa3/envmap_4_ems.png"><img width="150" src="images/pa3/envmap_4_ems.png"></a></td>
+        </tr>
+      </table>
+      
+
+      <a href="#" id="p2"></a>
+      <h2>Part 2: Phase Functions</h2>
+
+      <p>The framework already ships with an API and an implementation of a purely isotropic phase function.  Add the Henyey-Greenstein model and verify it against the provided $\chi^2$-test in <tt>data/pa3/tests</tt> directory.  The Henyey-Greenstein model specify the probability of the angle $\theta$ that the outgoing direction $\omega_o$ makes with the incoming direction $\omega_o$ as:
+      \begin{align*}
+        p(\theta) = \frac{1}{4\pi} \frac{1-g^2}{[1 + g^2 - 2g \cos \theta]^{3/2}}
+      \end{align*}
+      where $-1 \leq g \leq 1$ is a parameter of the model. You may find <a href="http://www.cs.cornell.edu/Courses/cs6630/2009fa/hw/hw3-hgsamp.pdf">this PDF file</a> useful when sampling the phase function.</p>
+
+      <p>You should test your Henyey-Greenstein phase function implementation against the <tt>data/pa3/tests/chi2test-hg.xml</tt> test file.</p>
+
+      <a href="#" id="p3"></a>
+      <h2>Part 3: Medium Sampling</h2>
+
+      <p>Production systems usually support rendering with arbitrary numbers of participating media that can be given complex shapes, e.g. by attaching them to surfaces in the scene. Implementing media at this level of generality is unfortunately very laborious. Here, we focus on the most basic case to simplify the project as much as possible: a single box-shaped medium. This time, all of the logic for constructing media from the scene description is already part of the framework code. For instance, the following scene description will instantiate a homogeneous medium and register it with the <code>Scene</code> class:</p>
+
+
+      <pre class="prettyprint linenums lang-xml">
+&lt;scene&gt;
+    &lt;medium type="homogeneous"&gt;
+        &lt;!-- By default, the medium occupies the region [0,0,0]-[1,1,1]. Scale and rotate it: --&gt;
+        &lt;transform name="toWorld"&gt;
+            &lt;scale value="5,5,5"/&gt;
+            &lt;rotate axis="0,1,0" angle="45"/&gt;
+        &lt;/transform&gt;
+  
+        &lt;!-- Absorption and scattering coefficients --&gt;
+        &lt;color name="sigmaA" value="0.01,0.01,0.01"/&gt;
+        &lt;color name="sigmaS" value="1, 1, 1"/&gt;
+
+        &lt;!-- Instantiate a Henyey-Greenstein phase function --&gt;
+        &lt;phase type="hg"&gt;
+            &lt;!-- Configure as slightly forward-scattering --&gt;
+            &lt;float name="g" value="0.5"/&gt;
+        &lt;/phase&gt;
+    &lt;/medium&gt;
+
+    ...
+&lt;/scene&gt;</pre>
+
+      <p>To account for medium scattering interactions, your renderer must be able to importance sample the integral form of the radiative transfer equation. To support direct illumination computations, it must futhermore be able to compute the transmittance between two world-space positions in the scene. Take a look at the existing homogeneous and heterogeneous media classes in <code>wakame.media.Homogeneous</code> and <code>wakame.media.Heterogeneous</code> and make sure that you understand what they do. Add support for the missing operations (distance sampling and tranmittance evaluation) using sampling and evaluation techniques of your choice. </p>
+
+      <h4>Distance Sampling</h4>
+
+      <p>Recall the radiance according to the radiative transfer equation (assuming no emitter term):
+      $$L_o(x, \omega_o) = \int_{0}^\infty e^{-T(x,x+\omega_o t)} \sigma_s(x + \omega_o t)\bigg( \int_{S^2} f(x, \omega_i, \omega_o) L_i(x+\omega_o t, \omega_i)\ d\omega_i \bigg) \ dt$$
+      where $f$ is the phase function, and $T(x, x+\omega_o s)$ is the transmittance term:
+      $$ T(x, x+\omega_o t) = \int_0^t \sigma_t(x - \omega_o s)\ ds$$
+      (beware that $\omega_o$ in this case does not have to be a unit vector).  To evaluate this integral, we sample a distance $\tilde{t}$ along the ray from $x$ in direction $\omega_o$ and evaluate:
+      $$ \frac{1}{p(\tilde{t})} e^{-T(x,x+\omega_o \tilde{t})} \sigma_s(x+\omega_o \tilde{t}) \bigg( \int_{S^2} f(x, \omega_i, \omega_o) L_i(x+\omega_o \tilde{t}, \omega_i)\ d\omega_i \bigg)$$
+      </p>
+
+      <p>The <code>sampleDistance</code> method of the <code>Medium</code> class should sample $\tilde{t}$, which indicates the location of a <i>scattering</i> (not absorption!) interaction with the volume along the ray.  If method decides that no interaction occurs along the ray (for example, if the ray does not intersact the medium at all or if an interaction does not occur due to randomness), it should return <code>false</code>.  Otherwise, it should return <code>true</code> and populate the given <code>MediumQueryRecord</code> with the distance $\tilde{t}$ in the <code>t</code> field.</p>
+    
+      <p>In this assignment, we leave the evaluation of the integral involving the phase function $f$ to the integrators that you will implement in Task 4.  On the other, the evaluation of the other terms should be carried out by the <code>Medium</code> class.  As such, the <code>weight</code> field of the <code>MediumQueryRecord</code> should be set to $$\frac{ e^{-T(x,x+\omega_o \tilde{t})} \sigma_s(x +\omega_o \tilde{t}) }{p(\tilde{t})}$$ so that the integrators can just multiply their estimates of the phase function integral with the value in the <code>weight</code> field.  It is your job to specify the probability distribution $p$ and sample according to it.</p>
+
+      <h4>Transmittance Evaluation</h4>
+
+      <p>The <code>evalTransmittance</code> function should evaluate the exponential of the negative of the transmittance term:
+      $$ \exp( -T(\mathbf{o} + \mathbf{d}t_1, \mathbf{o} + \mathbf{d} t_2) )$$
+      where $\mathbf{o}$ is the ray's origin, $\mathbf{d}$  is the ray direction (not necessarily a unit vector), the interval $[t_1, t_2]$ is the time interval in which the ray intersects the medium, and
+      $$ T(\mathbf{o} + \mathbf{d}t_1, \mathbf{o} + \mathbf{d} t_2) = \int_{t_1}^{t_2} \sigma_t(\mathbf{o} + \mathbf{d} s)\ ds.$$  It is your job to evaluate the above integral.
+      </p>
+
+      <h4>Homogeneous Medium</h4>
+
+      <p>The <code>Homogeneous</code> class represents a volume with constant $ \sigma_s $ and $ \sigma_a $ inside its axis-aligned bounding box (specified by the <code>bbox</code> field).  When implementing the required operations, you have to figure out which portion of the given way intersects the bounding box and do calculation accordingly.</p>
+
+      <h4>Heterogeneous Medium</h4>
+
+      <p>For the <code>Heterogeneous</code> class, notice that the class contains an instance of <code>wakame.volume.GridVolume</code> as a representation for the underlying, spatially varying density field.  Here are some hints on the implementation:</p>
+
+      <ul>
+        <li>The underlying <code>GridVolume</code> will only be <i>float volume.</i>  You do not have to concern yourself with the <i>vector volume</i> aspect of its capabilities.  The reason why the vector volume is there is because the class is lifted from a more general renderer implementation, which has been used in research here at Cornell.</li>
+
+        <li>The $ \sigma_t $ value of the <tt>Heterogenoues</tt> has the same value for all the three color channels.  (However, $ \sigma_t $ of the <tt>Homogeneous</tt> class might not be the same across the channels.)  The $ \sigma_t $ value at point $p$ is given by: $$ \sigma_t(p) = (\mathrm{density\ scaling\ factor}) \times (\mathrm{GridVolume\ lookup\ at\ point\ }p).$$  The lookup can be performed using the <code>lookupFloat</code> method of the <code>GridVolume</code> class.</li>
+
+        <li>The $\sigma_s$ of the volume at point $p$ is given by the albedo times the $\sigma_t$:
+          $$\sigma_s(p) = \mathrm{albedo} \times \sigma_t(p). $$</li>
+
+        <li>When implementing the <code>evalTransmittance</code> method, you will find the <code>integrateFloat</code> method of the <code>GridVolujme</code> class useful.</li>
+
+        <li>We suggest you use Woodcock tracking to implement distance sampling.</li>
+      </ul>
+    
+      <a href="#" id="p4"></a>
+      <h2>Part 4: Path Tracers</h2>
+
+      <p>Extends your <tt>path_mats</tt> and <tt>path_mis</tt> so that they support participating media.  Name your extended path tracers <tt>volpath_mats</tt> and <tt>volpath_mis</tt>, respectively.</p>
+
+      <p>After you're done with extending the path tracers, make sure that they pass the following tests in the <tt>data/pa3/tests</tt> directory:
+        <ul>
+          <li><tt>furnace-abs.xml</tt></li>
+          <li><tt>faunace-scat.xml</tt></li>
+          <li><tt>slab.xml</tt></li>
+          <li><tt>slab-hg.xml</tt></li>
+        </ul>
+      Next, render the following scenes in the <tt>data/pa3</tt> directory:
+        <ul>
+          <li><tt>cbox-foggy</tt></li>
+          <li><tt>steam</tt></li>
+          <li><tt>velvet</tt></li>
+          <li><tt>scatcube-mismatched</tt></li>
+          <li><tt>scatcube-matched</tt></li>
+        </ul>
+      Show 3-way comparisons between the renderings of <tt>volpath_mats</tt>, <tt>volpath_mis</tt>, and the reference images.
+      </p>
+
+      <table class="table table-bordered">
+        <tr>
+          <td align="center"><a href="images/pa3/cbox-foggy-mats.png"><img src="images/pa3/cbox-foggy-mats.png" width="300"></a></td>
+          <td align="center"><a href="images/pa3/cbox-foggy-mis-1024spp.png"><img src="images/pa3/cbox-foggy-mis-1024spp.png" width="300"></a></td>          
+        </tr>
+        <tr>
+          <td align="center"><tt>cbox-foggy-mats.xml</tt></td>
+          <td align="center"><tt>cbox-foggy-mis.xml</tt></td>
+        </tr>
+        <tr>
+          <td align="center"><a href="images/pa3/scatcube-matched-mats.png"><img src="images/pa3/scatcube-matched-mats.png" width="300"></a></td>
+          <td align="center"><a href="images/pa3/scatcube-matched-mis.png"><img src="images/pa3/scatcube-matched-mis.png" width="300"></a></td>          
+        </tr>
+        <tr>
+          <td align="center"><tt>scatcube-mathced-mats.xml</tt></td>
+          <td align="center"><tt>scatcube-matched-mis.xml</tt></td>
+        </tr>
+        <tr>
+          <td align="center"><a href="images/pa3/scatcube-mismatched-mats.png"><img src="images/pa3/scatcube-mismatched-mats.png" width="300"></a></td>
+          <td align="center"><a href="images/pa3/scatcube-mismatched-mis.png"><img src="images/pa3/scatcube-mismatched-mis.png" width="300"></a></td>          
+        </tr>
+        <tr>
+          <td align="center"><tt>scatcube-mismatched-mats.xml</tt></td>
+          <td align="center"><tt>scatcube-mismatched-mis.xml</tt></td>
+        </tr>
+        <tr>
+          <td align="center"><a href="images/pa3/steam-mats.png"><img src="images/pa3/steam-mats.png" width="300"></a></td>
+          <td align="center"><a href="images/pa3/steam-mis.png"><img src="images/pa3/steam-mis.png" width="300"></a></td>          
+        </tr>
+        <tr>
+          <td align="center"><tt>steam-mats.xml</tt></td>
+          <td align="center"><tt>steam-mis.xml</tt></td>
+        </tr>
+        <tr>
+          <td align="center"><a href="images/pa3/velvet-mats.png"><img src="images/pa3/velvet-mats.png" width="300"></a></td>
+          <td align="center"><a href="images/pa3/velvet-mis.png"><img src="images/pa3/velvet-mis.png" width="300"></a></td>          
+        </tr>
+        <tr>
+          <td align="center"><tt>velvet-mats.xml</tt></td>
+          <td align="center"><tt>velvet-mis.xml</tt></td>
+        </tr>
+      </table>
+
+    </div> <!-- /container -->
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+      });
+    </script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+    <script type="text/javascript" src="js/google-code-prettify/prettify.js"></script>
+  </body>
+</html>
